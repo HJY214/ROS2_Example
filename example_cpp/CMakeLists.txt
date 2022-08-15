@@ -15,9 +15,24 @@ if(BUILD_TESTING)
   # uncomment the line when a copyright and license is not present in all source files
   #set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
+  # uncomment the line when this package is not in a git repo 
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_package()
+
+add_executable(node_1 src/node_1.cpp)
+ament_target_dependencies(node_1 rclcpp)
+install(TARGETS
+  node_1
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
+add_executable(node_oop src/node_oop.cpp)
+ament_target_dependencies(node_oop rclcpp)
+install(TARGETS
+  node_oop
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
