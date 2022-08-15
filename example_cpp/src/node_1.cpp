@@ -1,6 +1,4 @@
 #include "rclcpp/rclcpp.hpp"
-
-
 /*	1.导入库文件
 	2.初始化客户端库
 	3.创造ROS2节点

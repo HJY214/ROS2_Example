@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -33,6 +34,13 @@ add_executable(node_oop src/node_oop.cpp)
 ament_target_dependencies(node_oop rclcpp)
 install(TARGETS
   node_oop
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
+add_executable(publisher src/node_publish.cpp)
+ament_target_dependencies(publisher rclcpp std_msgs)
+install(TARGETS
+  publisher
   DESTINATION lib/${PROJECT_NAME}
   )
 
