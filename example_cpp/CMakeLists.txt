@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(example_interfaces REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -43,4 +44,26 @@ install(TARGETS
   publisher
   DESTINATION lib/${PROJECT_NAME}
   )
+
+add_executable(subscriber src/node_subscribe.cpp)
+ament_target_dependencies(subscriber rclcpp std_msgs)
+install(TARGETS
+  subscriber
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
+add_executable(service_client src/service_client.cpp)
+ament_target_dependencies(service_client rclcpp std_msgs example_interfaces)
+install(TARGETS
+  service_client
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
+add_executable(service_server src/service_server.cpp)
+ament_target_dependencies(service_server rclcpp std_msgs example_interfaces)
+install(TARGETS
+  service_server
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
 
