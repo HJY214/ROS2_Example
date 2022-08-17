@@ -66,4 +66,11 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
   )
 
+add_executable(node_param src/node_param.cpp)
+ament_target_dependencies(node_param rclcpp)
+install(TARGETS
+  node_param
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
 
