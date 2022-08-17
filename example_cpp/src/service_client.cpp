@@ -49,9 +49,15 @@ int main(int argc,char ** argv)
 {
 	rclcpp::init(argc,argv);
 
-	auto node = std::make_shared<Client_Sum>("Client");
+	if (argc != 3) 
+	{
+      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "usage: add_two_ints_client X Y");
+      return 1;
+  	}
 
-	node -> send_request(5,6);
+	auto node = std::make_shared<Client_Sum>("Client");
+ 
+	node -> send_request(atoll(argv[1]),atoll(argv[2]));
 
 	rclcpp::spin(node);
 
