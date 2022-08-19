@@ -12,6 +12,8 @@ public:
 		RCLCPP_INFO(this -> get_logger(),"卖书%s服务已经开启!",name.c_str());
         using std::placeholders::_1;
         using std::placeholders::_2;
+        /* 创建多线程对象 */
+        callback_group_ser_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         /* 创建订阅者 */
         stock_subscribe = this->create_subscription<std_msgs::msg::String>("Stock_Books",10,std::bind(&Server_borrow::books_callback,this,_1));
         /* 创建发布者 */
@@ -39,8 +41,7 @@ private:
         money.data = 10;
 
         /* 货物款发出 */
-        money_publish->publish(money);
-        RCLCPP_INFO(this ->get_logger(),"收到了'%s书本',给了%d块钱\n",msg->data.c_str(), money.data);
+        RCLCPP_INFO(this ->get_logger(),"收到了 %s ,给了%d块钱\n",msg->data.c_str(), money.data);
 
         /* 把书放入书库 */
         books_queue.push(msg->data);
@@ -58,6 +59,11 @@ private:
         if (books_queue.size() < books_sum)
         {
             RCLCPP_INFO(this ->get_logger(),"目前书库有 %ld 本书，不够需求量，等待...\n",books_queue.size());
+            /* 需要进货的书本数量*/
+            std_msgs::msg::UInt32 money;
+            money.data = books_sum - books_queue.size();
+            money_publish->publish(money);
+            RCLCPP_INFO(this ->get_logger(),"缺货所以从商店进货 %d 本书\n",money.data);
 
             /* 设置检查周期，1s一次*/
             rclcpp::Rate loop_rate(1);
@@ -96,9 +102,5 @@ int main(int argc,char ** argv)
     exector.spin();
     rclcpp::shutdown();
     
-    //rclcpp::spin(node);
-
-	//rclcpp::shutdown();
-
 	return 0;
 }

@@ -36,4 +36,11 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
   )
 
+add_executable(borrow_client src/borrow_client.cpp)
+ament_target_dependencies(borrow_client rclcpp std_msgs cust_interfaces)
+install(TARGETS
+  borrow_client
+  DESTINATION lib/${PROJECT_NAME}
+  )
+
 ament_package()
