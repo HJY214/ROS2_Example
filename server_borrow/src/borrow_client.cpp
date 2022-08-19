@@ -4,6 +4,7 @@
 #include "std_msgs/msg/u_int32.hpp"
 #include "cust_interfaces/srv/sell_books.hpp"
 
+int money_;
 
 class Borrow_Client:public rclcpp::Node
 {
@@ -11,12 +12,14 @@ public:
 	Borrow_Client(std::string name):Node(name)
 	{
 		RCLCPP_INFO(this -> get_logger(),"已初始化客户端：%s节点!",name.c_str());
+        /* 声明参数 */
+        this->declare_parameter("money",money_);
 		/* 创建客户端 */
 		client_ = this ->create_client<cust_interfaces::srv::SellBooks>("sell_server_srv");
 	}
 	void send_request(int a)
 	{
-		RCLCPP_INFO(this->get_logger(),"给了 %d钱买书\n",a);
+		RCLCPP_INFO(this->get_logger(),"给了 %d 块钱买书\n",a);
 
 		/* 1.等待服务端上线 */
 		while(!client_->wait_for_service(std::chrono::seconds(1)))
@@ -57,15 +60,17 @@ int main(int argc,char ** argv)
 {
 	rclcpp::init(argc,argv);
 
-	if (argc != 2) 
-	{
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "只能给一次钱哦!");
-      return 1;
-  	}
+	// if (argc != 2) 
+	// {
+    //   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "只能给一次钱哦!");
+    //   return 1;
+  	// }
 
 	auto node = std::make_shared<Borrow_Client>("Borrow_Client");
+
+    node->get_parameter("money",money_);
  
-	node -> send_request(atoll(argv[1]));
+	node -> send_request(money_);
 
 	rclcpp::spin(node);
 

@@ -12,6 +12,8 @@ public:
 		RCLCPP_INFO(this -> get_logger(),"卖书%s服务已经开启!",name.c_str());
         using std::placeholders::_1;
         using std::placeholders::_2;
+        /* 声明参数 */
+        this->declare_parameter("book_price",book_price);
         /* 创建多线程对象 */
         callback_group_ser_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         /* 创建订阅者 */
@@ -22,6 +24,8 @@ public:
 		server_ = this ->create_service<cust_interfaces::srv::SellBooks>("sell_server_srv",std::bind(&Server_borrow::borrow_callback_,this,_1,_2),rmw_qos_profile_services_default,callback_group_ser_);
 	}
 private:
+    /* 声明书本单价 */
+    int book_price = 1;
     /* 声明书本订阅者 */
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr stock_subscribe;
     /* 声明货款发布者 */
@@ -52,18 +56,20 @@ private:
 	void borrow_callback_(const cust_interfaces::srv::SellBooks::Request::SharedPtr request,
 		const cust_interfaces::srv::SellBooks::Response::SharedPtr response)
 	{
+        /* 更新单价参数*/
+        this->get_parameter("book_price",book_price);
 		RCLCPP_INFO(this ->get_logger(),"收到买书请求，给了￥%d块钱\n",request->money);
-		unsigned int books_sum = request->money/1; //一块钱一本
+		unsigned int books_sum = int(request->money/book_price); //书本数量=钱/单价
 
         /* 查看书库是否有足够的书*/
         if (books_queue.size() < books_sum)
         {
             RCLCPP_INFO(this ->get_logger(),"目前书库有 %ld 本书，不够需求量，等待...\n",books_queue.size());
             /* 需要进货的书本数量*/
-            std_msgs::msg::UInt32 money;
-            money.data = books_sum - books_queue.size();
-            money_publish->publish(money);
-            RCLCPP_INFO(this ->get_logger(),"缺货所以从商店进货 %d 本书\n",money.data);
+            std_msgs::msg::UInt32 money_;
+            money_.data = books_sum - books_queue.size();
+            money_publish->publish(money_);
+            RCLCPP_INFO(this ->get_logger(),"缺货所以从商店进货 %d 本书\n",money_.data);
 
             /* 设置检查周期，1s一次*/
             rclcpp::Rate loop_rate(1);
@@ -101,6 +107,6 @@ int main(int argc,char ** argv)
     exector.add_node(node);
     exector.spin();
     rclcpp::shutdown();
-    
+
 	return 0;
 }
